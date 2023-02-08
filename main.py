@@ -55,8 +55,8 @@ def HistogramRGB(img):
 
 def computeBottomSkyline(img, bar_size=19, mode='RGB'):
     if mode == 'RGB':
-        h, w, c = img.shape[0], img.shape[1], img.shape[2]
-        img = img[:, : , 0]
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        h, w = img.shape[0], img.shape[1]
     if mode == 'gray':
         h, w = img.shape[0], img.shape[1]
 
@@ -132,7 +132,7 @@ def main():
         input_image = img[: h * 2 // 3, : , : ].copy()
         bottomline, skyline_x, skyline_y = computeSkyline(input_image)
         for x,y in zip(skyline_x, skyline_y):
-            cv2.circle(img, center=(int(x),int(y)),radius=30, color=(0,0,255), thickness=10)
+            cv2.circle(img, center=(int(x),int(y)),radius=10, color=(0,0,255), thickness=10)
         cv2.line(img,pt1=(0, bottomline),pt2=(img.shape[1]-1, bottomline), color=(0,255,255),thickness=10)
         cv2.namedWindow("input",0)
         cv2.imshow("input", img)
