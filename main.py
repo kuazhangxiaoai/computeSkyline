@@ -1,4 +1,5 @@
 import os
+import glob
 import numpy as np
 import argparse
 import cv2
@@ -62,18 +63,27 @@ def computeBottomSkyline(img, bar_size=19, mode='RGB'):
 
     bar_num = h // bar_size
     means = []
+    #for i in range(bar_num-1):
+    #    bar_up = img[i * bar_size: (i+1)*bar_size, :]
+    #    bar_down = img[(i+1)*bar_size:(i+2)*bar_size, : ]
+    #    mean_up = np.mean(bar_up)
+    #    mean_down = np.mean(bar_down)
+    #    means.append(mean_up / (mean_down+1e-5))
+
     for i in range(bar_num):
         bar = img[i * bar_size: (i+1)*bar_size, :]
         mean = np.mean(bar)
         means.append(mean)
-    bottomSkyline = bar_size * np.argmin(np.array(means)) + bar_size // 2
+
+    #bottomSkyline = bar_size * np.argmax(np.array(means)) #+ bar_size // 2
+    bottomSkyline = bar_size * np.argmin(np.array(means)) #+ bar_size // 2
     return bottomSkyline
 
 def parse_arg():
     parser = argparse.ArgumentParser(description="compute sky line")
     parser.add_argument('--input-image-path', default=None,help='input image path')
     parser.add_argument('--output-image-path', default=None, help='output image path')
-    parser.add_argument('--intput-image-dir', default=None, help='output image directory')
+    parser.add_argument('--input-image-dir', default=None, help='output image directory')
     parser.add_argument('--output-image-dir', default=None, help='output image directory')
 
     args = parser.parse_args()
@@ -137,6 +147,21 @@ def main():
         with open(os.path.join(arg.output_image_dir, imagename.replace('.JPG', '.txt')),'w') as file:
             for x, y in zip(skyline_x, skyline_y):
                 file.write(f'{int(x)},{int(y)}\n')
+
+    if (arg.input_image_dir is not None):
+        paths = glob.glob(arg.input_image_dir+'*.JPG')
+        for image_path in paths:
+            img = cv2.imread(image_path)
+            h,w = img.shape[0],img.shape[1]
+            input_image = img[: h * 2 // 3, :, :].copy()
+            bottomline, skyline_x, skyline_y = computeSkyline(input_image)
+            for x, y in zip(skyline_x, skyline_y):
+                cv2.circle(img, center=(int(x), int(y)), radius=10, color=(0, 0, 255), thickness=20)
+            imagename = image_path.split('/')[-1]
+            cv2.imwrite(os.path.join(arg.output_image_dir, imagename), img)
+            with open(os.path.join(arg.output_image_dir, imagename.replace('.JPG', '.txt')), 'w') as file:
+                for x, y in zip(skyline_x, skyline_y):
+                    file.write(f'{int(x)},{int(y)}\n')
 
 
 if __name__ == '__main__':
