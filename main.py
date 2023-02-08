@@ -130,14 +130,14 @@ def main():
         input_image = img[: h * 2 // 3, : , : ].copy()
         bottomline, skyline_x, skyline_y = computeSkyline(input_image)
         for x,y in zip(skyline_x, skyline_y):
-            cv2.circle(img, center=(int(x),int(y)),radius=10, color=(0,0,255), thickness=10)
+            cv2.circle(img, center=(int(x),int(y)),radius=10, color=(0,0,255), thickness=20)
         #cv2.line(img,pt1=(0, bottomline),pt2=(img.shape[1]-1, bottomline), color=(0,255,255),thickness=10)
         imagename = arg.input_image_path.split('/')[-1]
         cv2.imwrite(os.path.join(arg.output_image_dir, imagename), img)
+        with open(os.path.join(arg.output_image_dir, imagename.replace('.JPG', '.txt')),'w') as file:
+            for x, y in zip(skyline_x, skyline_y):
+                file.write(f'{int(x)},{int(y)}\n')
 
-        #cv2.namedWindow("input",0)
-        #cv2.imshow("input", img)
-        #cv2.waitKey()
 
 if __name__ == '__main__':
     main()
