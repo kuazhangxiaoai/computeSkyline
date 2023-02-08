@@ -122,8 +122,6 @@ def computeSkyline(img, bar_num=129, block_num=120, mode='RGB'):
 
     return bottomline, bar_sky_list_x, bar_sky_list_y
 
-
-
 def main():
     arg = parse_arg()
     if (arg.input_image_path is not None) :
@@ -133,10 +131,13 @@ def main():
         bottomline, skyline_x, skyline_y = computeSkyline(input_image)
         for x,y in zip(skyline_x, skyline_y):
             cv2.circle(img, center=(int(x),int(y)),radius=10, color=(0,0,255), thickness=10)
-        cv2.line(img,pt1=(0, bottomline),pt2=(img.shape[1]-1, bottomline), color=(0,255,255),thickness=10)
-        cv2.namedWindow("input",0)
-        cv2.imshow("input", img)
-        cv2.waitKey()
+        #cv2.line(img,pt1=(0, bottomline),pt2=(img.shape[1]-1, bottomline), color=(0,255,255),thickness=10)
+        imagename = arg.input_image_path.split('/')[-1]
+        cv2.imwrite(os.path.join(arg.output_image_dir, imagename), img)
+
+        #cv2.namedWindow("input",0)
+        #cv2.imshow("input", img)
+        #cv2.waitKey()
 
 if __name__ == '__main__':
     main()
