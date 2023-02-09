@@ -79,6 +79,21 @@ def computeBottomSkyline(img, bar_size=19, mode='RGB'):
     bottomSkyline = bar_size * np.argmin(np.array(means)) #+ bar_size // 2
     return bottomSkyline
 
+def otsuClasify(img, block_size):
+    img_gray = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2GRAY)
+    thvalue, thimg = cv2.threshold(img_gray, 0,255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    h, w = img_gray.shape[0], img_gray.shape[1]
+    block_num = h // block_size
+    for i in range(block_num):
+        blockImg = img_gray[i*block_size: (i+1)*block_size,:]
+        mean = np.mean(blockImg)
+        if mean > thvalue:
+            continue
+        else:
+            return i * block_size + block_size // 2
+
+    return 0
+
 def parse_arg():
     parser = argparse.ArgumentParser(description="compute sky line")
     parser.add_argument('--input-image-path', default=None,help='input image path')
@@ -122,13 +137,11 @@ def computeSkyline(img, bar_num=129, block_num=120, mode='RGB'):
         if average_judge_color < exsisted_sky_thresh:
             bar_sky_list_y[i] = 0
         else:
-            diff_values, diff_indexes = compareBlockImage(mean_list) if mode == 'RGB' else compareBlockImage(mean_list,'averageGray')
-            sky_line_between_blocks, sky_line_between_blocks_index = np.max(diff_values),np.argmax(diff_values)
-            sky_line_between_blocks_chennels = diff_indexes[sky_line_between_blocks_index]
-            #for j in range(len(diff_values)):
-            #    if diff_values[j] > diff_time_thresh:
-            #        sky_line_between_blocks_index = j
-            bar_sky_list_y[i] = sky_line_between_blocks_index * block_size
+            #diff_values, diff_indexes = compareBlockImage(mean_list) if mode == 'RGB' else compareBlockImage(mean_list,'averageGray')
+            #sky_line_between_blocks, sky_line_between_blocks_index = np.max(diff_values),np.argmax(diff_values)
+            #sky_line_between_blocks_chennels = diff_indexes[sky_line_between_blocks_index]
+            #bar_sky_list_y[i] = sky_line_between_blocks_index * block_size
+            bar_sky_list_y[i] = otsuClasify(bar_img, block_size)
 
     return bottomline, bar_sky_list_x, bar_sky_list_y
 
