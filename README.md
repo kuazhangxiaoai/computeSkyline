@@ -1,1 +1,1 @@
-This is a project of computing skyline
+This is a project for computing skyline
